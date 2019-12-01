@@ -6,29 +6,27 @@
 using namespace std;
 using namespace sf;
 
-constexpr int windowWidth{ 800 }, windowHeight{ 600 };
+constexpr int windowWidth = 800 , windowHeight = 600;
 
-const
-constexpr float ballRadius{ 10.f }, ballVelocity{ 6.f };
-constexpr float paddleWidth{ 60.f }, paddleHeight{ 20.f }, paddleVelocity{ 5.f };
-constexpr float blockWidth{ 40 }, blockHeight{ 20 };
-constexpr int countBlocksX{ 11 }, countBlocksY{ 4 };
+constexpr float ballRadius = 10, ballVelocity = 6;
+constexpr float paddleWidth = 60, paddleHeight = 20, paddleVelocity = 5;
+constexpr float blockWidth = 40, blockHeight = 20;
+constexpr int countBlocksX = 11, countBlocksY = 4;
 
 struct Ball
 {
 	CircleShape shape;
-	Vector2f velocity{ ballVelocity + 3, ballVelocity};
+	Vector2f velocity{ -ballVelocity + 2, ballVelocity };
 
 	Ball(float mX, float mY)
 	{
 		shape.setPosition(mX, mY);
 		shape.setRadius(ballRadius);
 		shape.setFillColor(Color::Red);
-		shape.setOrigin(ballRadius, ballRadius);
 	}
 
-	void update() 
-	{ 
+	void update()
+	{
 		if (right() >= windowWidth)
 			velocity.x = -ballVelocity;
 		else if (left() <= 0)
@@ -38,16 +36,17 @@ struct Ball
 		else if (bottom() >= windowHeight)
 			velocity.y = -ballVelocity;
 
-		shape.move(velocity); 
-		
+		shape.move(velocity);
+
 	}
 
+	//Wrong patter for sides of ball
 	float x() { return shape.getPosition().x; }
 	float y() { return shape.getPosition().y; }
-	float left() { return shape.getPosition().x - shape.getRadius(); }
-	float right() { return shape.getPosition().x + shape.getRadius(); }
-	float top() { return shape.getPosition().y - shape.getRadius(); }
-	float bottom() { return shape.getPosition().y + shape.getRadius(); }
+	float left() { return shape.getPosition().x; }
+	float right() { return shape.getPosition().x + shape.getRadius() * 2; }
+	float top() { return shape.getPosition().y; }
+	float bottom() { return shape.getPosition().y + shape.getRadius() * 2; }
 };
 
 struct Paddle
@@ -77,10 +76,10 @@ struct Paddle
 
 	float x() { return shape.getPosition().x; }
 	float y() { return shape.getPosition().y; }
-	double right() { return shape.getPosition().x + shape.getSize().x; }
-	double left() { return shape.getPosition().x; }
-	double top() { return shape.getPosition().y; }
-	double bottom() { return shape.getPosition().y + shape.getSize().y; }
+	float left() { return x(); }
+	float right() { return x() + shape.getSize().x; }
+	float top() { return y(); }
+	float bottom() { return y() + shape.getSize().y; }
 };
 
 template<class T1, class T2>
@@ -120,53 +119,53 @@ void testCollision(Paddle &paddle, Ball &ball)
 
 	if (ball.x() > paddle.x() + paddleWidth / 2)
 		ball.velocity.x = ballVelocity;
-	else 
+	else
 		ball.velocity.x = -ballVelocity;
 }
 
 void testCollision(Block &block, Ball &ball)
 {
+	//if there is no collision, quit
 	if (!isCollide(block, ball) || !block.isVisible)
 		return;
+
 	block.isVisible = false;
-
-	if (block.y() < ball.y() + ball.shape.getRadius())
-	{
+	
+	//if ball hits block on the top, change y velocity and
+	//change x velocity depending on half of the block
+	if (block.y() > ball.y())
+	{	
 		ball.velocity.y = -ballVelocity;
-
-		if (block.x() + blockWidth / 2 < ball.x())
+		if (block.x() + blockWidth / 2 <= ball.x())
 			ball.velocity.x = ballVelocity;
 		else if (block.x() + blockWidth / 2 > ball.x())
 			ball.velocity.x = -ballVelocity;
 	}
-	else if (block.y() + blockHeight < ball.y() + ball.shape.getRadius())
+	//If ball hits block at the bottom do the same
+	else if (block.y() + blockHeight <= ball.y())
 	{
 		ball.velocity.y = ballVelocity;
 
-		if (block.x() + blockWidth / 2 < ball.x())
+		if (block.x() + blockWidth / 2 <= ball.x())
 			ball.velocity.x = ballVelocity;
 		else if (block.x() + blockWidth / 2 > ball.x())
 			ball.velocity.x = -ballVelocity;
 	}
-
 }
 
 int main()
 {
 	Paddle paddle(windowWidth / 2, windowHeight - paddleHeight);
-	Ball ball(paddle.x() + paddleWidth/2, paddle.y());
-	
-	Block block(windowWidth / 2, 30);
-
+	Ball ball(paddle.x() + paddleWidth / 2, paddle.y() + ballRadius*2);
 	vector<Block> blocks;
-	
-	for (int iX{ 0 }; iX < countBlocksX; ++iX)
-		for (int iY{ 0 }; iY < countBlocksY; ++iY)
-			blocks.push_back(Block(
-			(iX + 10) * (blockWidth + 3) + 44, (iY + 2) * (blockHeight + 3)));
+
+	for (int i = 0; i < 10; i++)
+	{
+		blocks.push_back(Block(80 + (10 + blockWidth) * i, 100));
+	}
 
 	RenderWindow window(VideoMode(windowWidth, windowHeight), "Arkanoid - 3");
-	window.setFramerateLimit(60);
+	window.setFramerateLimit(80);
 
 	while (true)
 	{
@@ -177,21 +176,18 @@ int main()
 		// Every loop iteration, we need to update the ball.
 		ball.update();
 		paddle.update();
-		
+
 		testCollision(paddle, ball);
 
 		window.clear();
 
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			testCollision(blocks[i], ball);
 
 			if (blocks[i].isVisible)
 				window.draw(blocks[i].shape);
 		}
-
-		
-
 		window.draw(ball.shape);
 		window.draw(paddle.shape);
 		window.display();
