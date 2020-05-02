@@ -2,6 +2,7 @@
 #include <iostream>
 
 Player::Player(const std::string& filename)
+	
 {
 	texture.loadFromFile(filename);
 	sprite.setTexture(texture);
@@ -33,9 +34,64 @@ void Player::input()
 	}
 }
 
+void Player::update(float dt, sf::RenderWindow& window)
+{
+
+	rect.left += dx * dt;
+	collision(horizontal);
+
+
+	if (!onGround)
+	{
+		dy += gravity * dt;
+		rect.top += dy * dt;
+	}
+
+	onGround = false;
+	collision(vertical);
+
+	frameNumber += animationSpeed * dt;
+
+	if (frameNumber > 4)
+		frameNumber = 0;
+
+	mousePosInWorld = sf::Mouse::getPosition(window);
+
+	sf::Vector2f mousePosToView = window.mapPixelToCoords(mousePosInWorld);
+
+	float side = mousePosToView.x - rect.left;
+
+	std::cout << side << std::endl;
+
+	//look on the right side
+	if (side > 0)
+	{
+		if (dx > 0)
+			sprite.setTextureRect(sf::IntRect(playerWidth * int(frameNumber), 0, playerWidth, playerHeight));
+		if (dx == 0)
+			sprite.setTextureRect(sf::IntRect(0 * int(frameNumber), 0, playerWidth, playerHeight));
+		//sprite.setTextureRect(sf::IntRect(playerWidth * int(frameNumber), 0, playerWidth, playerHeight));
+		
+	}
+	else if (side < 0)
+	{
+		if (dx < 0)
+			sprite.setTextureRect(sf::IntRect(playerWidth * int(frameNumber) + playerWidth, 0, -playerWidth, playerHeight));
+		if (dx == 0)
+			sprite.setTextureRect(sf::IntRect(0 * int(frameNumber) + playerWidth, 0, -playerWidth, playerHeight));
+		sprite.setTextureRect(sf::IntRect(playerWidth * int(frameNumber) + playerWidth, 0, -playerWidth, playerHeight));
+
+	}
+		
+
+	dx = 0;
+	sprite.setPosition(rect.left, rect.top);
+}
+
 void Player::update(float dt)
 {
-	rect.left += dx * dt;
+
+	/*rect.left += dx * dt;
 	collision(horizontal);
 	
 
@@ -59,7 +115,7 @@ void Player::update(float dt)
 		sprite.setTextureRect(sf::IntRect(playerWidth * int(frameNumber) + playerWidth, 0, -playerWidth, playerHeight));
 
 	dx = 0;
-	sprite.setPosition(rect.left, rect.top);
+	sprite.setPosition(rect.left, rect.top);*/
 }
 
 void Player::collision(int direction)
