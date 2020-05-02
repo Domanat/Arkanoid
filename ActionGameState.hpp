@@ -2,6 +2,7 @@
 #define ACTION_GAME_STATE_HPP
 
 #include "GameState.hpp"
+#include "TextureManager.hpp"
 
 class ActionGameState : public GameState
 {
@@ -9,10 +10,13 @@ private:
 	sf::View view;
 
 	//------Change all that textures on texture manager!!---------------------
-	
+
 	//background inside level
-	sf::Texture levelTexture;
-	sf::Sprite levelSprite;
+	sf::Texture skyLowTexture;
+	sf::Sprite skyLowSprite;
+
+	sf::Texture skyUpTexture;
+	sf::Sprite skyUpSprite;
 
 	//textures for block which we use to draw level;
 	sf::Texture drawBlockTexture;

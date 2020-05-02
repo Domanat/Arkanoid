@@ -3,13 +3,16 @@
 
 ActionGameState::ActionGameState(Game* g) :
 	player("images/Player.png"),
-	enemy("images/enemy.png")
+	enemy("images/Enemy.png", 11 * cellSize, 10 * cellSize)
 {
 	game = g;
 
 	//background on the level
-	levelTexture.loadFromFile("images/wall.png");
-	levelSprite.setTexture(levelTexture);
+	skyLowTexture.loadFromFile("images/SkyLower.png");
+	skyLowSprite.setTexture(skyLowTexture);
+
+	skyUpTexture.loadFromFile("images/SkyUpper.png");
+	skyUpSprite.setTexture(skyUpTexture);
 
 	//background image
 	backTexture.loadFromFile("images/GameBackground.jpg");
@@ -34,6 +37,9 @@ void ActionGameState::input()
 
 		if (event.key.code == sf::Keyboard::Escape)
 			game->window.close();
+
+		if (event.type == sf::Event::TouchMoved)
+			std::cout << "Moved" << std::endl;
 	}
 
 	player.input();
@@ -41,16 +47,24 @@ void ActionGameState::input()
 		
 void ActionGameState::update(float dt)
 {
-	player.update(dt);
+	//fix movement of window
+	if (dt > 0.0031)
+		return;
+
+	player.update(dt, game->window);
 	enemy.update(dt);
 
 	if (player.getRect().intersects(enemy.getRect()) && enemy.isAlive)
 	{
-		if (player.getSpeed().y > 0)
+		std::cout << "COllisioN" << std::endl;
+		
+
+
+		/*if (player.getSpeed().y > 0)
 		{
 			player.setSpeed(vertical, -jumpSpeed);
 			enemy.isAlive = false;
-		}
+		}*/
 	}
 
 	//center view to the player;
@@ -71,18 +85,16 @@ void ActionGameState::draw()
 		{
 			for (int j = 0; j < mapWidth; j++)
 			{
-				if (map[i][j] == 'B')
+				switch (map[i][j])
 				{
+				case 'B':
 					drawBlock.setPosition(j * cellSize, i * cellSize);
 					game->window.draw(drawBlock);
-				}
-				else if (map[i][j] == ' ')
-				{
-					levelSprite.setPosition(j * cellSize, i * cellSize);
-					game->window.draw(levelSprite);
-				}
-				else
+					break;
+
+				default:
 					continue;
+				}
 			}
 		}
 	
