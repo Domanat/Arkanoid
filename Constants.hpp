@@ -8,7 +8,7 @@ const int mapWidth = 50;
 const int speed = 280;
 const int jumpSpeed = 470;
 const int cellSize = 32;
-const int playerWidth = 30;
+const int playerWidth = 32;
 const int playerHeight = 32;
 const int gravity = 1000;
 const int animationSpeed = 7;
@@ -41,5 +41,6 @@ const sf::String map[mapHeight] =
 	"B                                               B",
 	"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 };
+
 
 #endif
