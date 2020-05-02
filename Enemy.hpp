@@ -9,7 +9,10 @@ class Enemy : public Entity
 public:
 	bool isAlive;
 
-	Enemy(const std::string& filename);
+
+	Enemy(const std::string& filename, int x, int y);
+
+	void collision(int direction);
 
 	virtual void update(float dt) override;
 
