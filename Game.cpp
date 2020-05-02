@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "GameState.hpp"
 #include "MenuGameState.hpp"
+#include "ActionGameState.hpp"
 #include <iostream>
 
 Game::Game() :
@@ -8,7 +9,7 @@ Game::Game() :
 {
 	
 
-	pushState(new MenuGameState(this));
+	pushState(new ActionGameState(this));
 }
 
 Game::~Game()
